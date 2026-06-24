@@ -73,7 +73,7 @@
                         Birth weight (kg)
                     </label>
                     <input type="number" name="birth_weight" value="{{ old('birth_weight') }}"
-                        placeholder="e.g. 3.2" step="0.1" min="0.5" max="10"
+                        placeholder="e.g. 3.2" step="0.1" min="0.5" max="5"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm
                                focus:outline-none focus:ring-2 focus:ring-green-500">
                 </div>
@@ -133,7 +133,7 @@
                 </div>
                 <div class="col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1">
-                        Email (optional)
+                        Email <span class="text-red-500">*</span>
                     </label>
                     <input type="email" name="email" value="{{ old('email') }}"
                         placeholder="email@example.com"
@@ -144,16 +144,26 @@
         </div>
 
         {{-- Facility (auto-filled) --}}
-        <div class="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
-                Facility
-            </h3>
-            <div class="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-200
-                        rounded-lg text-sm text-gray-600">
-                <span>🏥</span>
-                <span>{{ Auth::user()->facility->name ?? 'Unknown facility' }}</span>
-            </div>
-        </div>
+        <div>
+    <label class="block text-sm font-medium text-gray-700 mb-1">
+        Healthcare Facility <span class="text-red-500">*</span>
+    </label>
+
+    <select name="facility_id"
+        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm
+               focus:outline-none focus:ring-2 focus:ring-green-500"
+        required>
+
+        <option value="">Select facility</option>
+
+        @foreach($facilities as $facility)
+            <option value="{{ $facility->facility_id }}">
+                {{ $facility->name }} - {{ $facility->location }}
+            </option>
+        @endforeach
+
+    </select>
+</div>
 
         <div class="flex items-center gap-3">
             <button type="submit"

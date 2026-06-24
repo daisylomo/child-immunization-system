@@ -7,11 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class Child extends Model
 {
     protected $primaryKey = 'child_id';
-    protected $fillable = ['first_name','last_name','date_of_birth','gender','birth_weight','facility_id','unique_child'];
+    protected $fillable = ['first_name','last_name','date_of_birth','gender','birth_weight','facility_id','caregiver_id','unique_child'];
     protected $casts = [
         'date_of_birth' => 'date',
         'birth_weight'  => 'decimal:2',
     ];
+    public function caregiver()
+{
+    return $this->belongsTo(User::class, 'caregiver_id');
+}
 
     public function facility()   
     { 
@@ -46,13 +50,24 @@ class Child extends Model
 
     // Human readable: "4 mo" or "2 yr 3 mo"
     public function getAgeLabel(): string
-    {
-        $months = $this->getAgeInMonths();
-        if ($months < 24) {
-            return $months . ' mo';
-        }
-        $years = intdiv($months, 12);
-        $rem   = $months % 12;
-        return $rem > 0 ? "{$years} yr {$rem} mo" : "{$years} yr";
+{
+    $months = abs($this->getAgeInMonths()); // removes negative values
+
+    if ($months < 24) {
+        return $months . ' month' . ($months === 1 ? '' : 's');
     }
+
+    $years = intdiv($months, 12);
+    $rem   = $months % 12;
+
+    if ($rem > 0) {
+        return "{$years} year" . ($years === 1 ? '' : 's') . " {$rem} month" . ($rem === 1 ? '' : 's');
+    }
+
+    return "{$years} year" . ($years === 1 ? '' : 's');
+}
+public function reminders()
+{
+    return $this->hasMany(Reminder::class);
+}
 }

@@ -38,4 +38,8 @@ class Reminder extends Model
             default   => ['label' => 'Pending', 'class' => 'bg-amber-100 text-amber-700'],
         };
     }
+    public function child()
+{
+    return $this->belongsTo(Child::class);
+}
 }

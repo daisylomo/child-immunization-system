@@ -1,118 +1,174 @@
 @extends('layouts.app')
 
-@section('title', 'Children')
+@section('title', 'Children Records')
 
 @section('content')
 
-    {{-- Header --}}
-    <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-semibold text-gray-800">Immunization records</h2>
+@php
+    $user = auth()->user();
+    $canManageChildren = in_array($user->role, ['admin', 'healthcare_worker'], true);
+    $isCaregiver = $user->role === 'caregiver';
+    $searchValue = $search ?? request('search');
+@endphp
+
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h2 class="text-xl font-semibold text-gray-800">
+            {{ $isCaregiver ? 'My Child Record' : 'Children Records' }}
+        </h2>
+        <p class="text-sm text-gray-500 mt-1">
+            {{ $isCaregiver ? 'View your child immunization record.' : 'Search, view, and manage registered children.' }}
+        </p>
+    </div>
+
+    @if($canManageChildren)
         <a href="{{ route('children.create') }}"
            class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium
                   px-4 py-2 rounded-lg transition-colors">
-            + Register child
+            + Register Child
         </a>
-    </div>
-
-    {{-- Success message --}}
-    @if (session('success'))
-        <div class="mb-4 bg-green-50 border border-green-200 text-green-700 text-sm
-                    rounded-lg px-4 py-3">
-            {{ session('success') }}
-        </div>
     @endif
+</div>
 
-    {{-- Search --}}
-    <form method="GET" action="{{ route('children.index') }}" class="mb-4">
-        <input type="text" name="search" value="{{ request('search') }}"
-            placeholder="Search child..."
-            class="border border-gray-300 rounded-lg px-3 py-2 text-sm w-72
-                   focus:outline-none focus:ring-2 focus:ring-green-500">
-    </form>
+{{-- Search --}}
+<div class="bg-white rounded-xl border border-gray-200 p-5 mb-6">
+    <form method="GET" action="{{ route('children.index') }}">
+        <div class="flex flex-col md:flex-row gap-3">
+            <input type="text"
+                   name="search"
+                   value="{{ $searchValue }}"
+                   placeholder="Search by child name, child ID, guardian name, or phone number"
+                   class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm
+                          focus:ring-green-500 focus:border-green-500">
 
-    {{-- Table --}}
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <table class="w-full text-sm">
-            <thead>
-                <tr class="border-b border-gray-100 bg-gray-50 text-left">
-                    <th class="px-5 py-3 font-medium text-gray-600">Child name</th>
-                    <th class="px-5 py-3 font-medium text-gray-600">ID</th>
-                    <th class="px-5 py-3 font-medium text-gray-600">Age</th>
-                    <th class="px-5 py-3 font-medium text-gray-600">Last vaccine</th>
-                    <th class="px-5 py-3 font-medium text-gray-600">Next due</th>
-                    <th class="px-5 py-3 font-medium text-gray-600">Status</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-                @forelse ($children as $child)
-                    @php
-                        $lastVaccine  = $child->immunizations->first();
-                        $nextAppt     = $child->appointments->first();
-                        $today        = now()->startOfDay();
+            <div class="flex gap-2">
+                <button type="submit"
+                        class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium
+                               px-5 py-2 rounded-lg transition-colors">
+                    Search
+                </button>
 
-                        if ($nextAppt) {
-                            $due  = \Carbon\Carbon::parse($nextAppt->scheduled_date);
-                            $diff = $today->diffInDays($due, false);
-
-                            if ($diff < 0) {
-                                $status = 'Overdue';
-                                $badge  = 'bg-red-100 text-red-700';
-                            } elseif ($diff <= 7) {
-                                $status = 'Due soon';
-                                $badge  = 'bg-amber-100 text-amber-700';
-                            } else {
-                                $status = 'Up to date';
-                                $badge  = 'bg-green-100 text-green-700';
-                            }
-                        } else {
-                            $status = $lastVaccine ? 'Up to date' : 'No records';
-                            $badge  = $lastVaccine ? 'bg-green-100 text-green-700'
-                                                   : 'bg-gray-100 text-gray-500';
-                        }
-                    @endphp
-                    <tr class="hover:bg-gray-50 cursor-pointer"
-                        onclick="window.location='{{ route('children.show', $child) }}'">
-                        <td class="px-5 py-3 font-medium text-gray-800">
-                            {{ $child->first_name }} {{ $child->last_name }}
-                        </td>
-                        <td class="px-5 py-3 text-gray-500 font-mono text-xs">
-                            {{ $child->unique_child }}
-                        </td>
-                        <td class="px-5 py-3 text-gray-600">
-                            {{ $child->getAgeLabel() }}
-                        </td>
-                        <td class="px-5 py-3 text-gray-600">
-                            {{ $lastVaccine ? $lastVaccine->vaccine_name : '—' }}
-                        </td>
-                        <td class="px-5 py-3 text-gray-600">
-                            {{ $nextAppt ? \Carbon\Carbon::parse($nextAppt->scheduled_date)->format('d M Y') : '—' }}
-                        </td>
-                        <td class="px-5 py-3">
-                            <span class="px-2 py-1 rounded-full text-xs font-medium {{ $badge }}">
-                                {{ $status }}
-                            </span>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" class="px-5 py-12 text-center text-gray-400 text-sm">
-                            No children registered yet.
-                            <a href="{{ route('children.create') }}"
-                               class="text-green-600 hover:underline ml-1">
-                                Register the first child →
-                            </a>
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-
-        {{-- Pagination --}}
-        @if ($children->hasPages())
-            <div class="px-5 py-3 border-t border-gray-100">
-                {{ $children->links() }}
+                @if($searchValue)
+                    <a href="{{ route('children.index') }}"
+                       class="border border-gray-300 text-gray-600 text-sm font-medium
+                              px-5 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        Clear
+                    </a>
+                @endif
             </div>
-        @endif
+        </div>
+    </form>
+</div>
+
+{{-- Children Table --}}
+<div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+
+    <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+        <h3 class="font-medium text-gray-800">
+            {{ $isCaregiver ? 'Child Details' : 'Registered Children' }}
+        </h3>
+
+        <p class="text-sm text-gray-400">
+            {{ $children->count() }} record{{ $children->count() === 1 ? '' : 's' }}
+        </p>
     </div>
+
+    <table class="w-full text-sm">
+        <thead>
+            <tr class="bg-gray-50 border-b border-gray-100 text-left">
+                <th class="px-5 py-3 font-medium text-gray-600">Child</th>
+                <th class="px-5 py-3 font-medium text-gray-600">Child ID</th>
+                <th class="px-5 py-3 font-medium text-gray-600">Age</th>
+                <th class="px-5 py-3 font-medium text-gray-600">Gender</th>
+                <th class="px-5 py-3 font-medium text-gray-600">Guardian</th>
+                <th class="px-5 py-3 font-medium text-gray-600">Phone</th>
+                <th class="px-5 py-3 font-medium text-gray-600 text-right">Action</th>
+            </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-100">
+            @forelse($children as $child)
+                @php
+                    $guardian = $child->guardians->first();
+                @endphp
+
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-5 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center
+                                        text-green-700 font-semibold text-sm">
+                                {{ strtoupper(substr($child->first_name, 0, 1)) }}{{ strtoupper(substr($child->last_name, 0, 1)) }}
+                            </div>
+
+                            <div>
+                                <p class="font-medium text-gray-800">
+                                    {{ $child->first_name }} {{ $child->last_name }}
+                                </p>
+                                <p class="text-xs text-gray-400">
+                                    Registered child
+                                </p>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="px-5 py-4 text-gray-600">
+                        {{ $child->unique_child }}
+                    </td>
+
+                    <td class="px-5 py-4 text-gray-600">
+                        {{ $child->getAgeLabel() }}
+                    </td>
+
+                    <td class="px-5 py-4 text-gray-600">
+                        {{ $child->gender }}
+                    </td>
+
+                    <td class="px-5 py-4 text-gray-600">
+                        @if($guardian)
+                            {{ $guardian->first_name }} {{ $guardian->last_name }}
+                        @else
+                            —
+                        @endif
+                    </td>
+
+                    <td class="px-5 py-4 text-gray-600">
+                        {{ $guardian->phone_number ?? '—' }}
+                    </td>
+
+                    <td class="px-5 py-4 text-right">
+                        <a href="{{ route('children.show', $child->child_id) }}"
+                           class="text-green-600 hover:underline text-sm font-medium">
+                            View
+                        </a>
+
+                        @if($canManageChildren)
+                            <a href="{{ route('children.edit', $child->child_id) }}"
+                               class="ml-4 text-gray-500 hover:text-gray-700 hover:underline text-sm">
+                                Edit
+                            </a>
+                        @endif
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="7" class="px-5 py-10 text-center text-gray-400">
+                        @if($searchValue)
+                            No child records found for "{{ $searchValue }}".
+                        @else
+                            No child records found.
+                        @endif
+                    </td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+</div>
+
+{{-- Pagination --}}
+@if(method_exists($children, 'links'))
+    <div class="mt-6">
+        {{ $children->links() }}
+    </div>
+@endif
 
 @endsection

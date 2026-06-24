@@ -4,159 +4,195 @@
 
 @section('content')
 
-    <div class="mb-6">
-        <h2 class="text-xl font-semibold text-gray-800">Reports & analytics</h2>
-        <p class="text-sm text-gray-500 mt-1">System-wide immunization coverage and performance.</p>
+<!-- HEADER -->
+<div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">Reports & Analytics</h2>
+    <p class="text-sm text-gray-500">
+        System-wide immunization coverage and performance overview
+    </p>
+</div>
+
+<!-- KPI STRIP (SMALL + COLORED + INTERACTIVE) -->
+<div class="flex flex-wrap gap-4 mb-8">
+
+    <!-- CHILDREN -->
+    <div class="flex-1 min-w-[180px] bg-gradient-to-br from-green-50 to-white border border-green-100 rounded-xl p-4 shadow-sm hover:shadow-md transition transform hover:-translate-y-1">
+        <p class="text-xs text-gray-500 uppercase">Children Registered</p>
+        <p class="text-2xl font-bold text-green-700 mt-1">
+            {{ $totalChildren }}
+        </p>
     </div>
 
-    {{-- Top stats --}}
-    <div class="grid grid-cols-4 gap-4 mb-8">
-        <div class="bg-white rounded-xl border border-gray-200 p-5">
-            <p class="text-xs text-gray-500 uppercase tracking-wide">Children registered</p>
-            <p class="text-3xl font-semibold text-gray-800 mt-1">{{ $totalChildren }}</p>
-        </div>
-        <div class="bg-white rounded-xl border border-gray-200 p-5">
-            <p class="text-xs text-gray-500 uppercase tracking-wide">Vaccines this month</p>
-            <p class="text-3xl font-semibold text-gray-800 mt-1">{{ $vaccinesThisMonth }}</p>
-        </div>
-        <div class="bg-white rounded-xl border border-gray-200 p-5">
-            <p class="text-xs text-gray-500 uppercase tracking-wide">Missed appointments</p>
-            <p class="text-3xl font-semibold text-red-500 mt-1">{{ $missedAppointments }}</p>
-        </div>
-        <div class="bg-white rounded-xl border border-gray-200 p-5">
-            <p class="text-xs text-gray-500 uppercase tracking-wide">Reminders sent</p>
-            <p class="text-3xl font-semibold text-gray-800 mt-1">{{ $remindersSent }}</p>
-        </div>
+    <!-- VACCINES -->
+    <div class="flex-1 min-w-[180px] bg-gradient-to-br from-blue-50 to-white border border-blue-100 rounded-xl p-4 shadow-sm hover:shadow-md transition transform hover:-translate-y-1">
+        <p class="text-xs text-gray-500 uppercase">Vaccines This Month</p>
+        <p class="text-2xl font-bold text-blue-600 mt-1">
+            {{ $vaccinesThisMonth }}
+        </p>
     </div>
 
-    {{-- Charts row --}}
-    <div class="grid grid-cols-2 gap-6 mb-8">
+    <!-- MISSED -->
+    <div class="flex-1 min-w-[180px] bg-gradient-to-br from-red-50 to-white border border-red-100 rounded-xl p-4 shadow-sm hover:shadow-md transition transform hover:-translate-y-1">
+        <p class="text-xs text-gray-500 uppercase">Missed Appointments</p>
+        <p class="text-2xl font-bold text-red-600 mt-1">
+            {{ $missedAppointments }}
+        </p>
+    </div>
 
-        {{-- Coverage by vaccine --}}
-        <div class="bg-white rounded-xl border border-gray-200 p-5">
-            <h3 class="text-sm font-medium text-gray-700 mb-4">
-                Immunization coverage by vaccine type
+    <!-- REMINDERS -->
+    <div class="flex-1 min-w-[180px] bg-gradient-to-br from-purple-50 to-white border border-purple-100 rounded-xl p-4 shadow-sm hover:shadow-md transition transform hover:-translate-y-1">
+        <p class="text-xs text-gray-500 uppercase">Reminders Sent</p>
+        <p class="text-2xl font-bold text-purple-600 mt-1">
+            {{ $remindersSent }}
+        </p>
+    </div>
+
+</div>
+
+<!-- CHART SECTION -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+
+    <!-- COVERAGE -->
+    <div class="bg-white rounded-xl border shadow-sm p-6 hover:shadow-md transition">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-semibold text-gray-700">
+                Immunization Coverage by Vaccine
             </h3>
-            <canvas id="coverageChart" height="200"></canvas>
+            <span class="text-xs bg-green-50 text-green-600 px-2 py-1 rounded-full">
+                Coverage
+            </span>
         </div>
 
-        {{-- Monthly trend --}}
-        <div class="bg-white rounded-xl border border-gray-200 p-5">
-            <h3 class="text-sm font-medium text-gray-700 mb-4">
-                Vaccines administered — last 6 months
-            </h3>
-            <canvas id="trendChart" height="200"></canvas>
-        </div>
-
+        <canvas id="coverageChart" height="200"></canvas>
     </div>
 
-    {{-- Defaulter list --}}
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div class="px-5 py-4 border-b border-gray-100">
-            <h3 class="font-medium text-gray-800">Defaulter list</h3>
-            <p class="text-xs text-gray-500 mt-1">
-                Children with missed appointments, sorted by days overdue.
-            </p>
+    <!-- TREND -->
+    <div class="bg-white rounded-xl border shadow-sm p-6 hover:shadow-md transition">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-semibold text-gray-700">
+                Vaccines Administered (6 Months)
+            </h3>
+            <span class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-full">
+                Trend
+            </span>
         </div>
+
+        <canvas id="trendChart" height="200"></canvas>
+    </div>
+
+</div>
+
+<!-- DEFAULTER TABLE -->
+<div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+
+    <div class="p-5 border-b">
+        <h3 class="font-semibold text-gray-800">Defaulter List</h3>
+        <p class="text-xs text-gray-500">
+            Children with missed appointments and overdue vaccinations
+        </p>
+    </div>
+
+    <div class="overflow-x-auto">
+
         <table class="w-full text-sm">
-            <thead>
-                <tr class="bg-gray-50 border-b border-gray-100 text-left">
-                    <th class="px-5 py-3 font-medium text-gray-600">Child name</th>
-                    <th class="px-5 py-3 font-medium text-gray-600">Missed vaccine</th>
-                    <th class="px-5 py-3 font-medium text-gray-600">Due date</th>
-                    <th class="px-5 py-3 font-medium text-gray-600">Guardian phone</th>
-                    <th class="px-5 py-3 font-medium text-gray-600">Days overdue</th>
+
+            <thead class="bg-gray-50 text-left">
+                <tr>
+                    <th class="px-5 py-3">Child</th>
+                    <th class="px-5 py-3">Vaccine</th>
+                    <th class="px-5 py-3">Due Date</th>
+                    <th class="px-5 py-3">Guardian Phone</th>
+                    <th class="px-5 py-3">Days Overdue</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100">
+
+            <tbody class="divide-y">
+
                 @forelse($defaulters as $d)
-                    <tr class="hover:bg-gray-50 cursor-pointer"
+                    <tr class="hover:bg-gray-50 transition cursor-pointer"
                         onclick="window.location='{{ route('children.show', $d['child']) }}'">
+
                         <td class="px-5 py-3 font-medium text-gray-800">
                             {{ $d['child']->first_name }} {{ $d['child']->last_name }}
                         </td>
-                        <td class="px-5 py-3 text-gray-600">{{ $d['vaccine'] }}</td>
+
+                        <td class="px-5 py-3 text-gray-600">
+                            {{ $d['vaccine'] }}
+                        </td>
+
                         <td class="px-5 py-3 text-gray-600">
                             {{ \Carbon\Carbon::parse($d['due_date'])->format('d M Y') }}
                         </td>
+
                         <td class="px-5 py-3 text-gray-600">
                             {{ $d['guardian']?->phone_number ?? '—' }}
                         </td>
+
                         <td class="px-5 py-3">
                             <span class="font-semibold text-red-600">
-                                {{ $d['days_overdue'] }}
+                                {{ $d['days_overdue'] }} days
                             </span>
                         </td>
+
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-5 py-10 text-center text-gray-400">
-                            No defaulters — all appointments up to date.
+                        <td colspan="5" class="text-center py-10 text-gray-400">
+                            No defaulters — all children are up to date 🎉
                         </td>
                     </tr>
                 @endforelse
+
             </tbody>
+
         </table>
+
     </div>
+</div>
 
 @endsection
 
 @section('scripts')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script>
-    // Coverage by vaccine bar chart
-    new Chart(document.getElementById('coverageChart'), {
-        type: 'bar',
-        data: {
-            labels: @json($vaccines),
-            datasets: [{
-                label: 'Children covered',
-                data: @json($coverage),
-                backgroundColor: '#16a34a',
-                borderRadius: 6,
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { stepSize: 1 },
-                    title: { display: true, text: 'Children', font: { size: 11 } }
-                }
-            }
-        }
-    });
 
-    // Monthly trend line chart
-    const trend = @json($trend);
-    new Chart(document.getElementById('trendChart'), {
-        type: 'line',
-        data: {
-            labels: trend.map(t => t.label),
-            datasets: [{
-                label: 'Vaccines given',
-                data: trend.map(t => t.total),
-                borderColor: '#2563eb',
-                backgroundColor: 'rgba(37,99,235,0.08)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.4,
-                pointBackgroundColor: '#2563eb',
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { stepSize: 1 },
-                    title: { display: true, text: 'Count', font: { size: 11 } }
-                }
-            }
-        }
-    });
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<script>
+/* COVERAGE CHART */
+new Chart(document.getElementById('coverageChart'), {
+    type: 'bar',
+    data: {
+        labels: @json($vaccines),
+        datasets: [{
+            data: @json($coverage),
+            backgroundColor: '#1f7a5a',
+            borderRadius: 6
+        }]
+    },
+    options: {
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+    }
+});
+
+/* TREND CHART */
+const trend = @json($trend);
+
+new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+        labels: trend.map(t => t.label),
+        datasets: [{
+            data: trend.map(t => t.total),
+            borderColor: '#2563eb',
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+    }
+});
 </script>
+
 @endsection

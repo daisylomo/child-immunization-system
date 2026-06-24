@@ -11,15 +11,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('reminders', function (Blueprint $table) {
-            $table->id('reminder_id');
-            $table->foreignId('appointment__id')->constrained('appointments', 'appointment_id');
-            $table->foreignId('guardian_id')->constrained('guardians', 'guardian_id');
-            $table->dateTime('send_datetime');
-            $table->enum('channel', ['SMS', 'email'])->default('SMS');
-            $table->enum('delivery_status', ['pending', 'sent', 'failed'])->default('pending');
-            $table->timestamps();
-        });
+      Schema::create('reminders', function (Blueprint $table) {
+    $table->id('reminder_id');
+
+    $table->unsignedBigInteger('appointment_id');
+    $table->foreign('appointment_id')
+          ->references('appointment_id')
+          ->on('appointments')
+          ->onDelete('cascade');
+
+    $table->foreignId('guardian_id')
+          ->constrained('guardians', 'guardian_id')
+          ->onDelete('cascade');
+
+    $table->dateTime('send_datetime');
+    $table->enum('channel', ['SMS', 'email'])->default('SMS');
+    $table->enum('delivery_status', ['pending', 'sent', 'failed'])->default('pending');
+
+    $table->timestamps();
+});
     }
 
     /**

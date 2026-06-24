@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['admin', 'healthcare_worker'])->default('healthcare_worker');
+            $table->enum('role', ['admin', 'healthcare_worker','caregiver'])->default('healthcare_worker');
             $table->foreignId('facility_id')->nullable()->constrained('facilities', 'facility_id')->nullOnDelete();
             $table->rememberToken();
             $table->timestamps();

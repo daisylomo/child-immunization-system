@@ -11,13 +11,22 @@ class EnsureRole
     /**
      * Handle an incoming request.
      *
-     * @param  Closure(Request): (Response)  $next
+     * Accepts one or many roles:
+     * role:admin
+     * role:admin,healthcare_worker
      */
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (!auth()->check() || auth()->user()->role !== $role){
+        if (! auth()->check()) {
             abort(403, 'Unauthorized.');
         }
+
+        $userRole = trim(auth()->user()->role);
+
+        if (! in_array($userRole, $roles, true)) {
+            abort(403, 'Unauthorized.');
+        }
+
         return $next($request);
     }
 }

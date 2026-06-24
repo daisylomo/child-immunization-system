@@ -59,4 +59,8 @@ class User extends Authenticatable
     {
         return $query->where('role', 'healthcare_worker');
     }
+    public function children()
+{
+    return $this->hasMany(Child::class, 'caregiver_id');
+}
 }

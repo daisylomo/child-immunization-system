@@ -2,78 +2,194 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>TotoBora - Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TotoBora — Sign in</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <style>
+        :root {
+            --green: #1f7a5a;
+            --dark-green: #155c43;
+            --bg: #f4f7f6;
+            --text: #2d3436;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #e8f5ef, #ffffff);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* LOGIN CARD */
+        .login-card {
+            background: white;
+            width: 380px;
+            padding: 35px;
+            border-radius: 14px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* LOGO */
+        .logo img {
+            height: 90px;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        /* INPUTS */
+        .input-group {
+            text-align: left;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        label {
+            font-size: 13px;
+            color: #444;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(31,122,90,0.1);
+        }
+
+        /* SHOW/HIDE BUTTON */
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 38px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--green);
+            user-select: none;
+        }
+
+        /* BUTTON */
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--green);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: var(--dark-green);
+            transform: scale(1.02);
+        }
+
+        /* FOOTER */
+        .footer {
+            font-size: 12px;
+            color: #888;
+            margin-top: 20px;
+        }
+
+    </style>
 </head>
-<body class="bg-gray-50 flex items-center justify-center min-h-screen">
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 w-full max-w-sm">
+<body>
 
-        <!-- Brand -->
-        <div class="flex items-center gap-2 mb-8">
-            <span class="text-2xl">🌿</span>
-            <span class="text-xl font-semibold text-green-700">TotoBora</span>
+<div class="login-card">
+
+    <!-- LOGO -->
+    <div class="logo">
+        <img src="{{ asset('images/totobora-logo.png') }}" alt="TotoBora Logo">
+    </div>
+
+    <div class="tagline">
+        Healthy Children • Stronger Tomorrow
+    </div>
+
+    <!-- FORM -->
+    <form method="POST" action="{{ route('login') }}">
+        @csrf
+
+        <!-- EMAIL -->
+        <div class="input-group">
+            <label>Email</label>
+            <input 
+                type="email" 
+                name="email" 
+                value="{{ old('email') }}" 
+                placeholder="Enter your email address"
+                required
+            >
         </div>
 
-        <h1 class="text-gray-800 font-semibold text-lg mb-1">Sign in</h1>
-        <p class="text-sm text-gray-500 mb-6">Child immunization & growth monitoring</p>
+        <!-- PASSWORD -->
+        <div class="input-group">
+            <label>Password</label>
+            <input 
+                type="password" 
+                id="password"
+                name="password" 
+                placeholder="Enter your password"
+                required
+            >
 
-        <!-- Error -->
-        @if ($errors->any())
-            <div class="mb-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
-                {{ $errors->first() }}
-            </div>
-        @endif
+            <span class="toggle-password" onclick="togglePassword()">
+                Show
+            </span>
+        </div>
 
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
+        <button type="submit" class="btn">
+            Log in
+        </button>
+    </form>
 
-            <div class="mb-4">
-                <label for="email"
-                    class="block text-sm font-medium text-gray-700 mb-1">
-                    Email address
-                </label>
-                <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value="{{ old('email') }}"
-                    autocomplete="email"
-                    required
-                    autofocus
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm
-                           focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-            </div>
-
-            <div class="mb-4">
-                <label for="password"
-                    class="block text-sm font-medium text-gray-700 mb-1">
-                    Password
-                </label>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    autocomplete="current-password"
-                    required
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm
-                           focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-            </div>
-
-            <div class="flex items-center mb-6">
-                <input type="checkbox" id="remember" name="remember"
-                    class="rounded border-gray-300 text-green-600 mr-2">
-                <label for="remember" class="text-sm text-gray-600">Remember me</label>
-            </div>
-
-            <button type="submit"
-                class="w-full bg-green-600 hover:bg-green-700 text-white font-medium
-                       py-2 rounded-lg text-sm transition-colors">
-                Sign in
-            </button>
-        </form>
+    <div class="footer">
+        © 2026 TotoBora • All Rights Reserved
     </div>
+
+</div>
+
+<!-- SCRIPT -->
+<script>
+    function togglePassword() {
+        const password = document.getElementById("password");
+        const toggle = document.querySelector(".toggle-password");
+
+        if (password.type === "password") {
+            password.type = "text";
+            toggle.textContent = "Hide";
+        } else {
+            password.type = "password";
+            toggle.textContent = "Show";
+        }
+    }
+</script>
 
 </body>
 </html>
