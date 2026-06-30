@@ -20,14 +20,6 @@ class ChildController extends Controller
         ->latest();
 
     /*
-     Caregiver can only see their own child/children
-    */
-
-    if ($user->role === 'caregiver') {
-        $childrenQuery->where('caregiver_id', $user->id);
-    }
-
-    /*
      Search child records
     */
 
