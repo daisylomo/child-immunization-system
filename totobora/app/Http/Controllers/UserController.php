@@ -1,12 +1,16 @@
 <?php
 
 namespace App\Http\Controllers;
+
 // Admin-only user management with activate and deactivate account controls
 
-use App\Models\User;
+use App\Mail\UserTemporaryPasswordMail;
 use App\Models\Facility;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Password as PasswordBroker;
 
@@ -26,6 +30,7 @@ class UserController extends Controller
     public function create()
     {
         $facilities = Facility::orderBy('name')->get();
+
         return view('users.create', compact('facilities'));
     }
 
@@ -51,25 +56,27 @@ class UserController extends Controller
             'is_active'   => true,
         ]);
 
-        return redirect()->route('users.index')
+        return redirect()
+            ->route('users.index')
             ->with('success', 'User created successfully.');
     }
 
     public function edit(User $user)
     {
         $facilities = Facility::orderBy('name')->get();
+
         return view('users.edit', compact('user', 'facilities'));
     }
 
     public function update(Request $request, User $user)
     {
         $validated = $request->validate([
-            'first_name'  => ['required', 'string', 'max:50'],
-            'last_name'   => ['required', 'string', 'max:50'],
-            'email'       => ['required', 'email', 'unique:users,email,' . $user->id],
-            'facility_id' => ['required', 'exists:facilities,facility_id'],
-            'role'        => ['required', 'in:admin,healthcare_worker'],
-            'password'    => ['nullable', 'confirmed', Password::min(8)],
+            'first_name'        => ['required', 'string', 'max:50'],
+            'last_name'         => ['required', 'string', 'max:50'],
+            'email'             => ['required', 'email', 'unique:users,email,' . $user->id],
+            'facility_id'       => ['required', 'exists:facilities,facility_id'],
+            'role'              => ['required', 'in:admin,healthcare_worker'],
+            'generate_password' => ['nullable', 'boolean'],
         ]);
 
         $data = [
@@ -81,13 +88,28 @@ class UserController extends Controller
             'role'        => $validated['role'],
         ];
 
-        if (!empty($validated['password'])) {
-            $data['password'] = Hash::make($validated['password']);
+        $plainPassword = null;
+
+        if ($request->boolean('generate_password')) {
+            $plainPassword = $this->generateSecurePassword();
+
+            $data['password'] = Hash::make($plainPassword);
         }
 
         $user->update($data);
 
-        return redirect()->route('users.index')
+        if ($plainPassword) {
+            Mail::to($user->email)->send(
+                new UserTemporaryPasswordMail($user, $plainPassword)
+            );
+
+            return redirect()
+                ->route('users.index')
+                ->with('success', 'User updated successfully. A new password has been sent to their email.');
+        }
+
+        return redirect()
+            ->route('users.index')
             ->with('success', 'User updated successfully.');
     }
 
@@ -109,12 +131,19 @@ class UserController extends Controller
     public function deactivate(User $user)
     {
         $user->update(['is_active' => false]);
+
         return back()->with('success', $user->first_name . ' has been deactivated.');
     }
 
     public function reactivate(User $user)
     {
         $user->update(['is_active' => true]);
+
         return back()->with('success', $user->first_name . ' has been reactivated.');
+    }
+
+    private function generateSecurePassword(): string
+    {
+        return Str::random(8) . random_int(10, 99) . '@Tb';
     }
 }

@@ -58,8 +58,6 @@ Route::middleware('auth')->group(function () {
     /*
     |--------------------------------------------------------------------------
     | ADMIN + HEALTHCARE WORKER ONLY
-    | Can register children, edit records, record vaccines, schedule appointments,
-    | record growth, and dispatch reminders.
     |--------------------------------------------------------------------------
     */
 
@@ -69,7 +67,6 @@ Route::middleware('auth')->group(function () {
         |--------------------------------------------------------------------------
         | CHILDREN MANAGEMENT
         |--------------------------------------------------------------------------
-        | IMPORTANT: /children/register must stay before /children/{child}
         */
 
         Route::get('/children', [ChildController::class, 'index'])
@@ -132,7 +129,6 @@ Route::middleware('auth')->group(function () {
         /*
         |--------------------------------------------------------------------------
         | REMINDER DISPATCH
-        | Only admin and healthcare worker can dispatch SMS reminders.
         |--------------------------------------------------------------------------
         */
 
@@ -143,29 +139,13 @@ Route::middleware('auth')->group(function () {
     /*
     |--------------------------------------------------------------------------
     | SHARED VIEW ACCESS
-    | Admin + healthcare worker can view all.
-    | Caregiver can view their own child data.
-    | Caregiver filtering must be handled inside the controllers.
     |--------------------------------------------------------------------------
     */
 
     Route::middleware('role:admin,healthcare_worker')->group(function () {
 
-        /*
-        |--------------------------------------------------------------------------
-        | REMINDERS VIEW
-        |--------------------------------------------------------------------------
-        */
-
         Route::get('/reminders', [ReminderController::class, 'index'])
             ->name('reminders.index');
-
-        /*
-        |--------------------------------------------------------------------------
-        | CHILD VIEW ROUTES
-        | These must stay after /children/register
-        |--------------------------------------------------------------------------
-        */
 
         Route::get('/children/{child}/immunizations', [ImmunizationController::class, 'history'])
             ->name('immunizations.history');
@@ -185,6 +165,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('role:admin')->group(function () {
 
+<<<<<<< HEAD
         /*
         | REPORTS
         */
@@ -196,6 +177,11 @@ Route::middleware('auth')->group(function () {
         | USER MANAGEMENT
         */
 
+=======
+        Route::get('/reports', [ReportController::class, 'index'])
+            ->name('reports.index');
+
+>>>>>>> d1f4344 (Added link to immunization history and appointments and updated child management with search filtering)
         Route::get('/users', [UserController::class, 'index'])
             ->name('users.index');
 
